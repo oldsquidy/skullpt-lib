@@ -1,0 +1,43 @@
+[
+    {
+        "name": "test1",
+        "endpoints": [
+            "127.0.0.1"
+        ],
+        "actions": {
+            "create a file": {
+                "action_type": "file",
+                "specifics": {
+                    "action": "create",
+                    "mode": "0755",
+                    "name": "here.txt",
+                    "path": "/tmp"
+                }
+            },
+            "delete a file": {
+                "action_type": "file",
+                "specifics": {
+                    "action": "delete",
+                    "name": "here.txt",
+                    "path": "/tmp"
+                }
+            }
+        }
+    },
+    {
+        "name": "test2",
+        "endpoints": [
+            "127.0.0.2"
+        ],
+        "actions": {
+            "rename a file": {
+                "action_type": "file",
+                "specifics": {
+                    "action": "rename",
+                    "name": "here.txt",
+                    "target": "new_file.txt"
+                }
+            }
+        }
+    }
+]
