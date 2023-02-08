@@ -3,40 +3,66 @@ package skullpt_lib
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"skullpt-lib/actions"
+	"skullpt-lib/data_types"
 )
 
-type Gallery struct {
-	Name      string   `json: "name"`
-	Endpoints []string `json: "endpoints"`
-	Actions   []Action `json: "actions"`
+var registerdActions = data_types.AvailableActions{}
+
+func CreateActionList() (data_types.QueuedCommands, error) {
+	file, err := os.ReadFile("test_data/example_config.json")
+	if err != nil {
+		return data_types.QueuedCommands{}, err
+	}
+
+	gallerys, err := parseGallery(file)
+	if err != nil {
+		return data_types.QueuedCommands{}, err
+	}
+
+	endpointCommands := make(map[string][]data_types.ActionCommand)
+
+	for _, gallery := range gallerys {
+		cmds, err := convertActionToCommands(gallery.Actions)
+		if err != nil {
+			return data_types.QueuedCommands{}, err
+		}
+		for _, endpoint := range gallery.Endpoints {
+			endpointCommands[endpoint] = cmds
+		}
+	}
 }
 
-// Action holds the action config
-type Action struct {
-	actionType string    `json: "action_type"`
-	specifics  Specifics `json: "specifics"`
+func convertActionToCommands(config []data_types.Action) ([]data_types.ActionCommand, error) {
+	convertedCommands := []data_types.ActionCommand{}
+
+	for _, action := range config {
+		chosenAction := registerdActions[action.AtionType]
+		chosenCmd, err := chosenAction(action.Specifics)
+		if err != nil {
+			return nil, err
+		}
+		convertedCommands = append(convertedCommands, chosenCmd)
+	}
+
+	return convertedCommands, nil
 }
 
-// Specifics is the config for the action
-type Specifics map[string]any
+func parseGallery(galleryBytes []byte) ([]data_types.Gallery, error) {
 
-// ActionCommand is the function signature all actions needs to do
-type ActionCommand func(cfg Specifics) error
-
-// AvailableActions will hold all registerd commands for an action
-// e.g. create = fn for creating
-type AvailableCommands map[string]ActionCommand
-
-type AvailableActions map[string]AvailableCommands
-
-func ParseGallery(galleryBytes []byte) ([]Gallery, error) {
-
-	var gallery []Gallery
+	var gallery []data_types.Gallery
 
 	if err := json.Unmarshal(galleryBytes, &gallery); err != nil {
-		return []Gallery{}, fmt.Errorf("error reading gallery config: %s", err)
+		return []data_types.Gallery{}, fmt.Errorf("error reading gallery config: %s", err)
 	}
 	return gallery, nil
 }
 
-func BuildActions(gallery Gallery)
+func registerActions() {
+	registerdActions = actions.CollectActions()
+}
+
+func init() {
+	registerActions()
+}

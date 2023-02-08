@@ -1,16 +1,14 @@
 package file
 
-import (
-	"skullpt-lib/actions"
-)
+import "skullpt-lib/data_types"
 
-var Create actions.ActionCommand = returnAction(actions.Specifics{})
+var Create data_types.ActionCommand = returnAction(data_types.Specifics{})
 
-func returnAction(cfg actions.Specifics) actions.ActionCommand {
+func returnAction(cfg data_types.Specifics) data_types.ActionCommand {
 	return actionFileCreate
 }
 
-func actionFileCreate(actions.Specifics) error {
+func actionFileCreate(data_types.Specifics) error {
 	// do stuff
 	return nil
 }

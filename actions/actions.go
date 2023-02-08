@@ -1,11 +1,12 @@
 package actions
 
-import "skullpt-lib/actions/file"
+import (
+	"skullpt-lib/actions/file"
+	"skullpt-lib/data_types"
+)
 
-
-
-func CollectActions() AvailableActions {
-	avail := AvailableActions{
+func CollectActions() data_types.AvailableActions {
+	return data_types.AvailableActions{
 		"file": file.Register(),
 	}
 }
