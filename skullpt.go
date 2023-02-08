@@ -10,40 +10,44 @@ import (
 
 var registerdActions = data_types.AvailableActions{}
 
-func CreateActionList() (data_types.QueuedCommands, error) {
+func CreateActionList() ([]data_types.QueuedCommands, error) {
 	file, err := os.ReadFile("test_data/example_config.json")
 	if err != nil {
-		return data_types.QueuedCommands{}, err
+		return []data_types.QueuedCommands{}, err
 	}
 
 	gallerys, err := parseGallery(file)
 	if err != nil {
-		return data_types.QueuedCommands{}, err
+		return []data_types.QueuedCommands{}, err
 	}
 
-	endpointCommands := make(map[string][]data_types.ActionCommand)
+	queuedCommands := []data_types.QueuedCommands{}
 
 	for _, gallery := range gallerys {
-		cmds, err := convertActionToCommands(gallery.Actions)
+		convertedCommands, err := convertActionToCommands(gallery.Actions)
 		if err != nil {
-			return data_types.QueuedCommands{}, err
+			return []data_types.QueuedCommands{}, err
 		}
 		for _, endpoint := range gallery.Endpoints {
-			endpointCommands[endpoint] = cmds
+			queuedCommands = append(queuedCommands, data_types.QueuedCommands{
+				Endpoint: endpoint,
+				Commands: convertedCommands,
+			})
 		}
 	}
+	return queuedCommands, nil
 }
 
-func convertActionToCommands(config []data_types.Action) ([]data_types.ActionCommand, error) {
-	convertedCommands := []data_types.ActionCommand{}
+func convertActionToCommands(config map[string]data_types.Action) (map[string]data_types.ActionCommand, error) {
+	convertedCommands := make(map[string]data_types.ActionCommand)
 
-	for _, action := range config {
-		chosenAction := registerdActions[action.AtionType]
+	for desc, action := range config {
+		chosenAction := registerdActions[action.ActionType]
 		chosenCmd, err := chosenAction(action.Specifics)
 		if err != nil {
 			return nil, err
 		}
-		convertedCommands = append(convertedCommands, chosenCmd)
+		convertedCommands[desc] = chosenCmd
 	}
 
 	return convertedCommands, nil

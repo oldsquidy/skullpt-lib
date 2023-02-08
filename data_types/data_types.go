@@ -1,15 +1,15 @@
 package data_types
 
 type Gallery struct {
-	Name      string   `json: "name"`
-	Endpoints []string `json: "endpoints"`
-	Actions   []Action `json: "actions"`
+	Name      string            `json: "name"`
+	Endpoints []string          `json: "endpoints"`
+	Actions   map[string]Action `json: "actions"`
 }
 
 // Action holds the action config
 type Action struct {
-	AtionType string    `json: "action_type"`
-	Specifics Specifics `json: "specifics"`
+	ActionType string    `json: "action_type"`
+	Specifics  Specifics `json: "specifics"`
 }
 
 // Specifics is the config for the action
@@ -27,6 +27,6 @@ type AvailableActions map[string]ActionCatalouge
 
 // QueuedCommands is a list of commands ready to be applied
 type QueuedCommands struct {
-	endpoint string
-	commands map[string]ActionCommand
+	Endpoint string
+	Commands map[string]ActionCommand
 }
